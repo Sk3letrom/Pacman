@@ -1,0 +1,25 @@
+# Pastas de dependências externas e pacotes baixados
+vendor/
+packages/
+
+# Arquivos gerados pelo xmake
+build/
+.xmake/
+compile_commands.json
+
+# Arquivos temporários do VS Code
+.vscode/
+
+# Binários e bibliotecas compiladas
+*.exe
+*.dll
+*.lib
+*.a
+*.obj
+*.pdb
+*.ilk
+
+# Arquivos de log
+*.log
+*.tlog
+*.lastbuildstate
