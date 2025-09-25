@@ -57,12 +57,12 @@ Object::Object(WallType type) {
         sf::RectangleShape vertical;
         vertical.setSize(sf::Vector2f(40.f, 120.f));
 
-        vertical.setFillColor(sf::Color::Green);
+        vertical.setFillColor(sf::Color::Red);
 
         sf::RectangleShape vertical2;
         vertical.setSize(sf::Vector2f(40.f, 120.f));
 
-        vertical.setFillColor(sf::Color::Green);
+        vertical.setFillColor(sf::Color::Red);
 
         shapes.push_back(vertical);
         shapes.push_back(vertical2);
@@ -162,4 +162,12 @@ std::vector<std::vector<bool>>& Possibility::getL_SHAPE(){
 
 std::vector<std::vector<bool>>& Possibility::getT_SHAPE(){
     return this->T_SHAPE;
+}
+
+std::vector<std::vector<bool>>& Possibility::getPlus_SHAPE(){
+    return this->PLUS_SHAPE;
+}
+
+std::vector<std::vector<bool>>& Possibility::getI_SHAPE(){
+    return this->I_SHAPE;
 }

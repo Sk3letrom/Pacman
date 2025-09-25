@@ -41,7 +41,10 @@ class Possibility{
 
     public:
         std::vector<std::vector<bool>>& getL_SHAPE();
-        std::vector<std::vector<bool>>& getT_SHAPE(); 
+        std::vector<std::vector<bool>>& getT_SHAPE();
+        std::vector<std::vector<bool>>& getPlus_SHAPE();
+        std::vector<std::vector<bool>>& getI_SHAPE();
+
     private:
 
         // L_SHAPE
@@ -59,7 +62,7 @@ class Possibility{
         };
         
         // PLUS_SHAPE
-        std::vector<std::vector<bool>> PLUS_SHAPE{  // VERIFICAR PRIMEIRO QUAIS ENCAIXAM E DPS MANDAR AS OPÇÕES!
+        std::vector<std::vector<bool>> PLUS_SHAPE{
             {false, true, false},
             {true, true, true},
             {false, true, false}

@@ -113,6 +113,8 @@ int main(){
     //wall colision box
     
     bool loading = false;
+    bool otherType = false, moveSens;
+
     while (window.isOpen()){
 
         while (const std::optional event = window.pollEvent()){
@@ -134,52 +136,82 @@ int main(){
         srand(seed);
         if(!loading){
             // Comparison
-            size_t type = rand()%2;
+            size_t type = rand()%5;
+            size_t typeLooping = type;
         
             std::vector<std::vector<bool>> check;
             
-            Possibility typeL, typeT;
-            
-            switch(type){
-                case 0:
-                    check = typeL.getL_SHAPE(); break;
-                case 1:
-                    check = typeT.getT_SHAPE(); break;
-            }
-
-            int sensorI = 0;
-            for(auto& sens : sensors){
-
-                bool sensor = sens.scan(wallColisionBoxes);
-                sens.comparison(sensor, sensorI);
-                sensorI++;
-                std::cout << "sensor " << sensorI << ": " << sensor << std::endl;
-            }
-            std::optional<sf::Vector2i> allocatePiece = sensors[0].checkFitAt(check);
-            if(allocatePiece){
-                loading = false;
-                sf::Vector2i coords = allocatePiece.value();
-                std::cout << coords.x << ", " << coords.y << std::endl;
-                sf::Vector2f krummbel = sensors[(coords.x * 4) + coords.y].getPosition();
-
-                //====== WALLS CREATION ======
+            Possibility typeL, typeT, typeI, typePlus;
+            do{
+                if(otherType){
+                    type++;
+                    if(type == typeLooping) {moveSens = true;}
+                    if(type > 3) {type = 0;}
+                }
+                otherType = false;
                 switch(type){
                     case 0:
-                        allWalls.emplace_back(WallType::L_SHAPE).setPosition(krummbel.x, krummbel.y);
-                        std::cout << std::endl <<"criou um L" << std::endl; break;
+                        check = typeL.getL_SHAPE(); break;
                     case 1:
-                        allWalls.emplace_back(WallType::T_SHAPE).setPosition(krummbel.x + 40, krummbel.y);
-                        std::cout << std::endl <<"criou um T" << std::endl; break;
+                        check = typeT.getT_SHAPE(); break;
+                    case 2:
+                        check = typePlus.getPlus_SHAPE(); break;
+                    case 3:
+                        check = typeI.getI_SHAPE(); break;
                 }
-                
-                for (auto& WCB : allWalls){
-                    for(auto& shape : WCB.getShapes()){
-                        wallColisionBoxes.push_back(shape.getGlobalBounds());
+
+                int sensorI = 0;
+                for(auto& sens : sensors){
+
+                    bool sensor = sens.scan(wallColisionBoxes);
+                    sens.comparison(sensor, sensorI);
+                    sensorI++;
+                    std::cout << "sensor " << sensorI << ": " << sensor << std::endl;
+                }
+                std::optional<sf::Vector2i> allocatePiece = sensors[0].checkFitAt(check);
+                if(allocatePiece){
+                    loading = false;
+                    sf::Vector2i coords = allocatePiece.value();
+                    std::cout << coords.x << ", " << coords.y << std::endl;
+                    sf::Vector2f krummbel = sensors[(coords.x * 4) + coords.y].getPosition();
+
+                    //====== WALLS CREATION ======
+                    switch(type){
+                        case 0:
+                            allWalls.emplace_back(WallType::L_SHAPE).setPosition(krummbel.x, krummbel.y);
+                            std::cout << std::endl <<"criou um L" << std::endl; break;
+                        case 1:
+                            allWalls.emplace_back(WallType::T_SHAPE).setPosition(krummbel.x + 40, krummbel.y);
+                            std::cout << std::endl <<"criou um T" << std::endl; break;
+                        case 2:
+                            allWalls.emplace_back(WallType::PLUS_SHAPE).setPosition(krummbel.x + 40, krummbel.y);
+                            std::cout << std::endl <<"criou um PLUS" << std::endl; break;
+                        case 3:
+                            allWalls.emplace_back(WallType::I_SHAPE).setPosition(krummbel.x, krummbel.y);
+                            std::cout << std::endl <<"criou um I" << std::endl; break;
                     }
+                    
+                    for (auto& WCB : allWalls){
+                        for(auto& shape : WCB.getShapes()){
+                            wallColisionBoxes.push_back(shape.getGlobalBounds());  //POSSIVEL ERRO DE COLISÃO
+                        }
+                    }
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
-                std::this_thread::sleep_for(std::chrono::seconds(2));
-            }
-            else {loading = true;}    
+                else {otherType = true;}
+                if(moveSens){
+                    int i = 0;
+                    for(auto& newPosition : sensors){             
+                        newPosition.setPosition({newPosition.getPosition().x + 120, 0.f});
+                        i++;
+                        std::cout << std::endl << "TUDO PRONTO COM O: " << i << std::endl;
+                    }
+                    if(sensors[3].getPosition().x > 800){
+                        loading = true;
+                    }
+                    moveSens = false;
+                }
+            }while(otherType && !loading); 
         }
         //=========================================================================================
 
