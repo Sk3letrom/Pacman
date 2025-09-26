@@ -60,9 +60,12 @@ Object::Object(WallType type) {
         vertical.setFillColor(sf::Color::Red);
 
         sf::RectangleShape vertical2;
-        vertical.setSize(sf::Vector2f(40.f, 120.f));
+        vertical2.setSize(sf::Vector2f(40.f, 120.f));
 
-        vertical.setFillColor(sf::Color::Red);
+        vertical2.setFillColor(sf::Color::Red);
+
+        this->x = 0;
+        this->y = 0;
 
         shapes.push_back(vertical);
         shapes.push_back(vertical2);
@@ -156,18 +159,90 @@ std::vector<sf::Vector2f> Object::getPosition() const{
     return positions;
 }
 
-std::vector<std::vector<bool>>& Possibility::getL_SHAPE(){
-    return this->L_SHAPE;
+Possibility::Possibility(){
+    // L_SHAPE
+    L_SHAPES.push_back({ // 0°
+        {1, 0},
+        {1, 0},
+        {1, 1}
+    });
+    L_SHAPES.push_back({ // 90°
+        {1, 1, 1},
+        {1, 0, 0}
+    });
+    L_SHAPES.push_back({ // 180°
+        {1, 1},
+        {0, 1},
+        {0, 1}
+    });
+    L_SHAPES.push_back({ // 270°
+        {0, 0, 1},
+        {1, 1, 1}
+    });
+    
+    // T_SHAPES
+    T_SHAPES.push_back({ // 0°
+        {1, 1, 1},
+        {0, 1, 0}
+    });
+    T_SHAPES.push_back({ // 90°
+        {0, 1},
+        {1, 1},
+        {0, 1}
+    });
+    T_SHAPES.push_back({ // 180°
+        {0, 1, 0},
+        {1, 1, 1}
+    });
+    T_SHAPES.push_back({ // 270°
+        {1, 0},
+        {1, 1},
+        {1, 0}
+    });
+
+    I_SHAPES.push_back({ // 0°
+        {1},
+        {1},
+        {1},
+        {1}
+    });
+    I_SHAPES.push_back({ // 90°
+        {1, 1, 1, 1}
+    });
+    I_SHAPES.push_back({ // 180°
+        {1},
+        {1},
+        {1},
+        {1}
+    });
+    I_SHAPES.push_back({ // 270°
+        {1, 1, 1, 1}
+    });
+
+    // PLUS_SHAPES
+    Pattern plusPattern = { // 0°, 90°, 180°, 270°
+        {0, 1, 0},
+        {1, 1, 1},
+        {0, 1, 0}
+    };
+    PLUS_SHAPES.push_back(plusPattern);
+    PLUS_SHAPES.push_back(plusPattern);
+    PLUS_SHAPES.push_back(plusPattern);
+    PLUS_SHAPES.push_back(plusPattern);
 }
 
-std::vector<std::vector<bool>>& Possibility::getT_SHAPE(){
-    return this->T_SHAPE;
+const std::vector<Pattern>& Possibility::getL_SHAPES() const {
+    return this->L_SHAPES;
 }
 
-std::vector<std::vector<bool>>& Possibility::getPlus_SHAPE(){
-    return this->PLUS_SHAPE;
+const std::vector<Pattern>& Possibility::getT_SHAPES() const {
+    return this->T_SHAPES;
 }
 
-std::vector<std::vector<bool>>& Possibility::getI_SHAPE(){
-    return this->I_SHAPE;
+const std::vector<Pattern>& Possibility::getPlus_SHAPES() const {
+    return this->PLUS_SHAPES;
+}
+
+const std::vector<Pattern>& Possibility::getI_SHAPES() const {
+    return this->I_SHAPES;
 }

@@ -36,44 +36,24 @@ class Object{
 
 
 };
-
+using Pattern = std::vector<std::vector<bool>>;
 class Possibility{
 
     public:
-        std::vector<std::vector<bool>>& getL_SHAPE();
-        std::vector<std::vector<bool>>& getT_SHAPE();
-        std::vector<std::vector<bool>>& getPlus_SHAPE();
-        std::vector<std::vector<bool>>& getI_SHAPE();
+        Possibility();
+
+        const std::vector<Pattern>& getL_SHAPES() const;
+        const std::vector<Pattern>& getT_SHAPES() const;
+        const std::vector<Pattern>& getPlus_SHAPES() const;
+        const std::vector<Pattern>& getI_SHAPES() const;
 
     private:
 
         // L_SHAPE
-        std::vector<std::vector<bool>> L_SHAPE{
-            {true, false},
-            {true, false},
-            {true, true}
-        };
-       
-        // T_SHAPE
-        std::vector<std::vector<bool>> T_SHAPE{
-            {true, true, true},
-            {false, true, false},
-            {false, true, false}
-        };
-        
-        // PLUS_SHAPE
-        std::vector<std::vector<bool>> PLUS_SHAPE{
-            {false, true, false},
-            {true, true, true},
-            {false, true, false}
-        };
-
-        // I_SHAPE
-        std::vector<std::vector<bool>> I_SHAPE{
-            {true},
-            {true},
-            {true}
-        };
+        std::vector<Pattern> L_SHAPES;
+        std::vector<Pattern> T_SHAPES;
+        std::vector<Pattern> PLUS_SHAPES;
+        std::vector<Pattern> I_SHAPES;
 
 };
 

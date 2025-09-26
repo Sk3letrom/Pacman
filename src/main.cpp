@@ -15,6 +15,9 @@ int main(){
 
     window.setFramerateLimit(60);
 
+    unsigned seed = time(0);
+    srand(seed);
+
     Entity player(380.f, 670.f, 20.f, 237, 234, 42);
     Entity boundbox(380.f, 670.f, 5.f, 237, 234, 42);
     
@@ -38,10 +41,6 @@ int main(){
     //===============================
 
     //============ SCANER ====================================
-    sf::RectangleShape scaner({160.f, 160.f});
-    scaner.setPosition({0.f, 0.f});
-    scaner.setFillColor(sf::Color::Red);
-    sf::FloatRect scanerBox = scaner.getGlobalBounds();
     
     sf::Vector2f size = {40.f, 40.f};
     std::vector<Sensor> sensors;
@@ -132,32 +131,31 @@ int main(){
         
         
         //===================================== SCAN ACTION! =======================================
-        unsigned seed = time(0);
-        srand(seed);
         if(!loading){
             // Comparison
-            size_t type = rand()%5;
-            size_t typeLooping = type;
+            size_t type = rand()%4;
+            int attempts = 0;
         
-            std::vector<std::vector<bool>> check;
+            std::vector<Pattern> rotatedPatterns;
+            WallType shapeTypes[] = {WallType::L_SHAPE, WallType::T_SHAPE, WallType::PLUS_SHAPE, WallType::I_SHAPE};
+            Possibility possibilityChecker;
             
-            Possibility typeL, typeT, typeI, typePlus;
             do{
                 if(otherType){
                     type++;
-                    if(type == typeLooping) {moveSens = true;}
+
                     if(type > 3) {type = 0;}
                 }
                 otherType = false;
                 switch(type){
                     case 0:
-                        check = typeL.getL_SHAPE(); break;
+                        rotatedPatterns = possibilityChecker.getL_SHAPES(); break;
                     case 1:
-                        check = typeT.getT_SHAPE(); break;
+                        rotatedPatterns = possibilityChecker.getT_SHAPES(); break;
                     case 2:
-                        check = typePlus.getPlus_SHAPE(); break;
+                        rotatedPatterns = possibilityChecker.getPlus_SHAPES(); break;
                     case 3:
-                        check = typeI.getI_SHAPE(); break;
+                        rotatedPatterns = possibilityChecker.getI_SHAPES(); break;
                 }
 
                 int sensorI = 0;
@@ -168,10 +166,26 @@ int main(){
                     sensorI++;
                     std::cout << "sensor " << sensorI << ": " << sensor << std::endl;
                 }
-                std::optional<sf::Vector2i> allocatePiece = sensors[0].checkFitAt(check);
-                if(allocatePiece){
+
+                bool fitFound = false;
+                int successfulRotationIndex = 0;
+                std::optional<sf::Vector2i> allocatePieceResult;
+
+                for (int i = 0; i < rotatedPatterns.size(); ++i) {
+                    const Pattern& currentPattern = rotatedPatterns[i];
+                    std::optional<sf::Vector2i> tempResult = sensors[0].checkFitAt(currentPattern);
+
+                    if (tempResult) {
+                        fitFound = true;
+                        successfulRotationIndex = i;
+                        allocatePieceResult = tempResult;
+                        break;
+                    }
+                }
+                
+                if(fitFound){
                     loading = false;
-                    sf::Vector2i coords = allocatePiece.value();
+                    sf::Vector2i coords = allocatePieceResult.value();
                     std::cout << coords.x << ", " << coords.y << std::endl;
                     sf::Vector2f krummbel = sensors[(coords.x * 4) + coords.y].getPosition();
 
@@ -193,18 +207,27 @@ int main(){
                     
                     for (auto& WCB : allWalls){
                         for(auto& shape : WCB.getShapes()){
-                            wallColisionBoxes.push_back(shape.getGlobalBounds());  //POSSIVEL ERRO DE COLISÃO
+                            wallColisionBoxes.push_back(shape.getGlobalBounds());
                         }
                     }
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
-                else {otherType = true;}
+                else {
+                    otherType = true; 
+                    attempts++;
+                }
+
+                if(attempts >= 4){
+                    moveSens = true;
+                    attempts = 0;
+                }
+
                 if(moveSens){
                     int i = 0;
                     for(auto& newPosition : sensors){             
-                        newPosition.setPosition({newPosition.getPosition().x + 120, 0.f});
+                        newPosition.setPosition({newPosition.getPosition().x + 120, newPosition.getPosition().y});
                         i++;
-                        std::cout << std::endl << "TUDO PRONTO COM O: " << i << std::endl;
+                        std::cout << std::endl << "TUDO PRONTO COM O: " << i << newPosition.getPosition().x << " , " << newPosition.getPosition().y << std::endl;
                     }
                     if(sensors[3].getPosition().x > 800){
                         loading = true;
@@ -315,8 +338,6 @@ int main(){
         sf::RenderTexture renderTexture({500,500});
         
         window.clear(sf::Color::Black);
-
-        window.draw(scaner);
         
         for(auto& sensor : sensors){
             const auto& sensorForDraw = sensor.getShapes();
