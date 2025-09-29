@@ -12,30 +12,20 @@ enum class WallType{
 
 };
 
-class Object{
+class Object : public sf::Drawable, public sf::Transformable {
+public:
+    Object(WallType type);
+
+    const std::vector<sf::RectangleShape>& getShapes() const;
+
+private:
+
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     
-    public:
-        Object(WallType type);
-
-        const std::vector<sf::RectangleShape>& getShapes() const;
-
-        void setPosition(const float& offsetX, const float& offsetY);
-        void setRotation(const sf::Angle& angle);
-
-        std::vector<sf::Vector2f> getPosition() const;
-
-        float x = 0;
-        float y = 0;
-
-        float tempX;
-        float tempY;
+    std::vector<sf::RectangleShape> m_shapes; 
     
-    private:
-        std::vector<sf::RectangleShape> shapes;
-        WallType Type;
-
-
 };
+
 using Pattern = std::vector<std::vector<bool>>;
 class Possibility{
 

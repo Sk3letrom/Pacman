@@ -21,24 +21,9 @@ int main(){
     Entity player(380.f, 670.f, 20.f, 237, 234, 42);
     Entity boundbox(380.f, 670.f, 5.f, 237, 234, 42);
     
-    //========== MOTHERS WALLS ==============
     std::vector<Object> allWalls;
-    allWalls.emplace_back(WallType::L_SHAPE).setPosition(100.f, 500.f);
-    allWalls.emplace_back(WallType::T_SHAPE).setPosition(300.f, 500.f);
-    allWalls.emplace_back(WallType::I_SHAPE).setPosition(500.f, 500.f);
-    allWalls.emplace_back(WallType::PLUS_SHAPE).setPosition(700.f, 500.f);
 
     std::vector<sf::FloatRect> wallColisionBoxes;
-    /*
-    //WALL COLISION BOX
-    for (auto& WCB : allWalls){
-        for(auto& shape : WCB.getShapes()){
-              wallColisionBoxes.push_back(shape.getGlobalBounds());
-        }
-    }
-    */
-
-    //===============================
 
     //============ SCANER ====================================
     
@@ -186,33 +171,47 @@ int main(){
                 if(fitFound){
                     loading = false;
                     sf::Vector2i coords = allocatePieceResult.value();
-                    std::cout << coords.x << ", " << coords.y << std::endl;
                     sf::Vector2f krummbel = sensors[(coords.x * 4) + coords.y].getPosition();
 
-                    //====== WALLS CREATION ======
-                    switch(type){
-                        case 0:
-                            allWalls.emplace_back(WallType::L_SHAPE).setPosition(krummbel.x, krummbel.y);
-                            std::cout << std::endl <<"criou um L" << std::endl; break;
-                        case 1:
-                            allWalls.emplace_back(WallType::T_SHAPE).setPosition(krummbel.x + 40, krummbel.y);
-                            std::cout << std::endl <<"criou um T" << std::endl; break;
-                        case 2:
-                            allWalls.emplace_back(WallType::PLUS_SHAPE).setPosition(krummbel.x + 40, krummbel.y);
-                            std::cout << std::endl <<"criou um PLUS" << std::endl; break;
-                        case 3:
-                            allWalls.emplace_back(WallType::I_SHAPE).setPosition(krummbel.x, krummbel.y);
-                            std::cout << std::endl <<"criou um I" << std::endl; break;
-                    }
+                    //================ WALL CREATION ================
+                    Object& newWall = allWalls.emplace_back(shapeTypes[type]);
                     
-                    for (auto& WCB : allWalls){
-                        for(auto& shape : WCB.getShapes()){
-                            wallColisionBoxes.push_back(shape.getGlobalBounds());
+                    newWall.setOrigin({0.f, 0.f});
+                    // Rotation
+                    newWall.setRotation(sf::degrees(successfulRotationIndex * 90.f));
+                    std::cout << krummbel.x << " , " << krummbel.y<<std::endl;
+                    if(type == 3 && successfulRotationIndex == 1){
+                        krummbel.x += 120;
+                    }
+                    if(type == 0 && successfulRotationIndex == 3){
+                        krummbel.y += 80;
+                    }
+                    if(type == 1 && successfulRotationIndex == 2){
+                        krummbel.x += 120;
+                        krummbel.y += 120;
+                    }
+
+                    newWall.setPosition(krummbel);
+                    
+                    //get the collision box
+                    for (const auto& wall : allWalls) {
+
+                        const sf::Transform& parentTransform = wall.getTransform();
+
+                        for (const auto& shape : wall.getShapes()) {
+
+                            const sf::Transform& childTransform = shape.getTransform();
+
+                            sf::Transform finalTransform = parentTransform * childTransform;
+
+                            sf::FloatRect localBounds = shape.getLocalBounds();
+
+                            wallColisionBoxes.push_back(finalTransform.transformRect(localBounds));
                         }
                     }
-                    std::this_thread::sleep_for(std::chrono::seconds(2));
+                    std::this_thread::sleep_for(std::chrono::seconds(4));
                 }
-                else {
+                else { //none of the pieces fit
                     otherType = true; 
                     attempts++;
                 }
@@ -227,7 +226,7 @@ int main(){
                     for(auto& newPosition : sensors){             
                         newPosition.setPosition({newPosition.getPosition().x + 120, newPosition.getPosition().y});
                         i++;
-                        std::cout << std::endl << "TUDO PRONTO COM O: " << i << newPosition.getPosition().x << " , " << newPosition.getPosition().y << std::endl;
+                        //std::cout << std::endl << "TUDO PRONTO COM O: " << i << newPosition.getPosition().x << " , " << newPosition.getPosition().y << std::endl;
                     }
                     if(sensors[3].getPosition().x > 800){
                         loading = true;
@@ -353,11 +352,7 @@ int main(){
         }
         
         for(const auto& wall : allWalls){
-            const auto& wallForDraw = wall.getShapes();
-
-            for(const auto& wfd : wallForDraw){
-                window.draw(wfd);
-            }
+            window.draw(wall);
         }
         
 
