@@ -27,18 +27,18 @@ int main(){
 
     //============ SCANER ====================================
     
-    sf::Vector2f size = {40.f, 40.f};
+    sf::Vector2f size = {80.f, 80.f};
     std::vector<Sensor> sensors;
     const int sensorsPerRow = 4;
     const int sensorsPerCol = 4;
-    const float spacing = 40.f;
+    const float spacing = 80.f;
 
     for (int y = 0; y < sensorsPerCol; ++y) {
         for (int x = 0; x < sensorsPerRow; ++x) {
 
             Sensor& newSensor = sensors.emplace_back(size);        
             
-            newSensor.setPosition({x * spacing, y * spacing});
+            newSensor.setPosition({(x * spacing), (y * spacing) + 160});
     
         }
     }
@@ -98,6 +98,14 @@ int main(){
     
     bool loading = false;
     bool otherType = false, moveSens;
+    int stopMoveSet = 0;
+    bool setScale = false;
+
+    // Crie uma forma para desenhar as caixas de colisão (APENAS PARA DEPURAÇÃO)
+    sf::RectangleShape debugCollisionBox;
+    debugCollisionBox.setFillColor(sf::Color::Transparent);
+    debugCollisionBox.setOutlineColor(sf::Color::Yellow); // Cor bem visível
+    debugCollisionBox.setOutlineThickness(2.f);
 
     while (window.isOpen()){
 
@@ -181,14 +189,18 @@ int main(){
                     newWall.setRotation(sf::degrees(successfulRotationIndex * 90.f));
                     std::cout << krummbel.x << " , " << krummbel.y<<std::endl;
                     if(type == 3 && successfulRotationIndex == 1){
-                        krummbel.x += 120;
+                        krummbel.x += 240;
                     }
                     if(type == 0 && successfulRotationIndex == 3){
-                        krummbel.y += 80;
+                        krummbel.y += 160;
+                    }
+                    if(type == 0 && successfulRotationIndex == 2){
+                        krummbel.x += 160;
+                        krummbel.y += 240;
                     }
                     if(type == 1 && successfulRotationIndex == 2){
-                        krummbel.x += 120;
-                        krummbel.y += 120;
+                        krummbel.x += 240;
+                        krummbel.y += 240;
                     }
 
                     newWall.setPosition(krummbel);
@@ -209,7 +221,7 @@ int main(){
                             wallColisionBoxes.push_back(finalTransform.transformRect(localBounds));
                         }
                     }
-                    std::this_thread::sleep_for(std::chrono::seconds(4));
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
                 }
                 else { //none of the pieces fit
                     otherType = true; 
@@ -224,16 +236,59 @@ int main(){
                 if(moveSens){
                     int i = 0;
                     for(auto& newPosition : sensors){             
-                        newPosition.setPosition({newPosition.getPosition().x + 120, newPosition.getPosition().y});
+                        newPosition.setPosition({newPosition.getPosition().x + 240, newPosition.getPosition().y});
                         i++;
                         //std::cout << std::endl << "TUDO PRONTO COM O: " << i << newPosition.getPosition().x << " , " << newPosition.getPosition().y << std::endl;
                     }
-                    if(sensors[3].getPosition().x > 800){
-                        loading = true;
+                    if(sensors[3].getPosition().x + 80.f > 800.f){
+           
+                        const float startX = 0.f; 
+                        const float sensorSize = 80.f; 
+                        const int gridWidth = 4;
+
+                        for(int i = 0; i < sensors.size(); ++i){
+                            
+                            float newY = sensors[i].getPosition().y + 240.f;
+                            float newX = startX + (i % gridWidth) * sensorSize;
+                            sensors[i].setPosition({newX, newY});
+                        }
+                        stopMoveSet++;
                     }
+                    if(stopMoveSet == 2) {loading = true; setScale = true;}
                     moveSens = false;
                 }
             }while(otherType && !loading); 
+        }
+        if(setScale){
+            wallColisionBoxes.clear();
+            for(auto& wall : allWalls){
+            
+                wall.setOrigin({0.f, 0.f});
+                wall.setScale({0.75f, 0.75f});
+                wall.move({10.f, 10.f});
+
+                const sf::Transform& parentTransform = wall.getTransform();
+
+                for (const auto& shape : wall.getShapes()) {
+
+                    const sf::Transform& childTransform = shape.getTransform();
+
+                    sf::Transform finalTransform = parentTransform * childTransform;
+
+                    sf::FloatRect localBounds = shape.getLocalBounds();
+
+                    sf::FloatRect finalBox = finalTransform.transformRect(localBounds);
+                    finalBox.position.x -= 20;
+                    finalBox.position.y -= 20;
+
+                    finalBox.size.x += 40;
+                    finalBox.size.y += 40;
+
+                    wallColisionBoxes.push_back(finalBox);
+                }
+                
+            }
+            setScale = false;
         }
         //=========================================================================================
 
@@ -353,6 +408,15 @@ int main(){
         
         for(const auto& wall : allWalls){
             window.draw(wall);
+        }
+
+        for (const auto& box : wallColisionBoxes) {
+            // Usa as variáveis públicas de sf::FloatRect que funcionam na sua versão
+            debugCollisionBox.setSize(box.size);
+            debugCollisionBox.setPosition(box.position);
+
+            // Desenha o contorno da caixa de colisão.
+            window.draw(debugCollisionBox);
         }
         
 

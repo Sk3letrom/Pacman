@@ -7,13 +7,13 @@ Object::Object(WallType type) {
     if (type == WallType::L_SHAPE) {
         
         // Vertical Shape
-        sf::RectangleShape vertical(sf::Vector2f(40.f, 120.f));
+        sf::RectangleShape vertical(sf::Vector2f(80.f, 240.f));
         vertical.setPosition({0.f, 0.f});
         vertical.setFillColor(sf::Color::Cyan);
         
         // horizontal Shape
-        sf::RectangleShape horizontal(sf::Vector2f(80.f, 40.f));
-        horizontal.setPosition({0.f, 80.f});
+        sf::RectangleShape horizontal(sf::Vector2f(160.f, 80.f));
+        horizontal.setPosition({0.f, 160.f});
         horizontal.setFillColor(sf::Color::Cyan);
 
         m_shapes.push_back(vertical);
@@ -22,13 +22,13 @@ Object::Object(WallType type) {
     else if (type == WallType::T_SHAPE) {
         
         // horizontal shape
-        sf::RectangleShape horizontal(sf::Vector2f(120.f, 40.f));
+        sf::RectangleShape horizontal(sf::Vector2f(240.f, 80.f));
         horizontal.setPosition({0.f, 0.f});
         horizontal.setFillColor(sf::Color::White);
 
         // vertical shape
-        sf::RectangleShape vertical(sf::Vector2f(40.f, 80.f));
-        vertical.setPosition({40.f, 40.f});
+        sf::RectangleShape vertical(sf::Vector2f(80.f, 160.f));
+        vertical.setPosition({80.f, 80.f});
         vertical.setFillColor(sf::Color::White);
 
         m_shapes.push_back(horizontal);
@@ -36,7 +36,7 @@ Object::Object(WallType type) {
     }
     else if (type == WallType::I_SHAPE) {
         // just one vertical for the I
-        sf::RectangleShape vertical(sf::Vector2f(40.f, 120.f));
+        sf::RectangleShape vertical(sf::Vector2f(80.f, 240.f));
         vertical.setPosition({0.f, 0.f});
         vertical.setFillColor(sf::Color::Red);
 
@@ -44,13 +44,13 @@ Object::Object(WallType type) {
     }
     else if (type == WallType::PLUS_SHAPE) {
         // vertical shape
-        sf::RectangleShape vertical(sf::Vector2f(40.f, 120.f));
-        vertical.setPosition({40.f, 0.f});
+        sf::RectangleShape vertical(sf::Vector2f(80.f, 240.f));
+        vertical.setPosition({80.f, 0.f});
         vertical.setFillColor(sf::Color::Magenta);
         
         //horizontal shape
-        sf::RectangleShape horizontal(sf::Vector2f(120.f, 40.f));
-        horizontal.setPosition({0.f, 40.f});
+        sf::RectangleShape horizontal(sf::Vector2f(240.f, 80.f));
+        horizontal.setPosition({0.f, 80.f});
         horizontal.setFillColor(sf::Color::Magenta);
 
         m_shapes.push_back(vertical);
